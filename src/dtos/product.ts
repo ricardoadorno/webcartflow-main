@@ -1,4 +1,4 @@
-export interface ProductDto {
+export class CreateProductDto {
     id: string;
     title: string;
     description: string;
@@ -8,5 +8,11 @@ export interface ProductDto {
     rating: {
       rate: number;
       count: number;
+      comments: {
+        rate: number;
+        username: string;
+        comment: string;
+      }[]
     };
+    
 }

@@ -1,3 +1,6 @@
+import { Cart } from '../entities/cart';
+import CartProduct from '../entities/cart-product';
+import Media from '../entities/media';
 import Product from '../entities/product';
 import Rating from '../entities/rating';
 import User from '../entities/user';
@@ -12,7 +15,7 @@ const options: DataSourceOptions = {
   database: process.env.MAIN_DB_NAME || '',
   synchronize: true,
   // entities: ['../entities/*.ts'],
-  entities: [User, Rating, Product],  
+  entities: [User, Rating, Product, Media, Cart, CartProduct],  
   subscribers: [],
   migrations: [],
 };

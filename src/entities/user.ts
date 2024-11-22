@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from "typeorm"
 import { OneToMany } from "typeorm";
 import Rating from './rating';
+import { Cart } from './cart';
 
 @Entity()
 export default class User {
@@ -19,6 +20,10 @@ export default class User {
 
     @OneToMany(() => Rating, rating => rating.user)
     ratings: Rating[];
+
+    @JoinColumn()
+    @OneToOne(() => Cart, cart => cart.user)
+    cart: Cart;
 
     @Column({ select: false })
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)", select: false })

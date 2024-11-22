@@ -1,13 +1,13 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import express from 'express';
+import express, { json } from 'express';
 import cors from 'cors';
 import morgan from './libs/morgan';
-import exceptionHandler from './common/exceptions/exceptionHandler';
+import { asyncExceptionHandler, exceptionHandler } from './common/exceptions/exceptionHandler';
 import apiRouter from './routes/api';
 import authRouter from './routes/auth';
 import MainDataSource  from './databases/main-data-source';
-import asyncErrorHandler from './middlewares/asyncHandler';
+import { pdfUpload } from './utils/file-upload';
 
 const app = express();
 
@@ -19,13 +19,19 @@ app.use(cors({
 app.use(morgan);
 
 MainDataSource.initialize()
-.then(async () => {
-  console.log('Database Connected');
-})
-.catch(err => console.error(err));
 
-app.use('/auth', asyncErrorHandler(authRouter));
-app.use('/api', asyncErrorHandler(apiRouter));
+app.post('/test', (req, res) => {
+  console.log(req.body);
+
+  if(req.body.hello !== 'world') {
+    throw new Error('Invalid field');
+  }
+
+  res.send('ok');
+}, pdfUpload.single('teste') , (req, res) => { res.send('ok') });
+
+app.use('/auth', asyncExceptionHandler(authRouter));
+app.use('/api', asyncExceptionHandler(apiRouter));
 
 app.use(exceptionHandler);
 

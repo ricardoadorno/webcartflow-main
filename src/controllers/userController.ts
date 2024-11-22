@@ -2,11 +2,17 @@ import { Request, Response } from 'express';
 import MainDataSource from '../databases/main-data-source';
 import { hashPassword } from '../utils/crypto';
 import Exceptions from '../common/exceptions';
-import { CreateUserDTO, UpdateUserDTO } from '../dtos/user';
-import { ValidateDto } from '../middlewares/validationHandler';
+import { CreateRatingDto, CreateUserDTO, UpdateUserDTO } from '../dtos/user';
 import User from '../entities/user';
+import { validateDto } from '../utils/valitator';
+import Rating from '../entities/rating';
+import Product from '../entities/product';
+import jwt from 'jsonwebtoken';
+import { jwtSecret } from '../common/config/constants';
 
 const userRepo = MainDataSource.getRepository(User);
+const productRepo = MainDataSource.getRepository(Product);
+const ratingRepo = MainDataSource.getRepository(Rating);
 
 class UserController {
   static async get(req: Request, res: Response) {
@@ -27,9 +33,8 @@ class UserController {
     res.json(user).status(200);
   }
 
-  @ValidateDto(CreateUserDTO)
   static async create(req: Request, res: Response) {
-    const { username, email, password } = req.body;
+    const { username, email, password } = await validateDto(CreateUserDTO, req.body);
 
     const emailExists = await userRepo.findOneBy({ email });
     if (emailExists) {
@@ -46,7 +51,6 @@ class UserController {
     res.status(200).send('User created');
   }
 
-  @ValidateDto(UpdateUserDTO)
   static async update(req: Request, res: Response) {
     const { id } = req.params;
     const { username, email, password } = req.body;
@@ -89,6 +93,35 @@ class UserController {
 
     res.status(200).send('User removed');
   }
+
+  static async createRating(req: Request, res: Response) {
+    const { rate, comment, product_id } = await validateDto(CreateRatingDto, req.body);
+
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      throw Exceptions.unauthorized();
+    }
+
+    const { id } = jwt.verify(token, jwtSecret) as { id: number };
+
+    const product = await productRepo.findOneBy({ id: product_id });
+    const user = await userRepo.findOneBy({ id: id });
+
+    if (!product) {
+      throw Exceptions.notFound('Product');
+    }
+
+    if (!user) {
+      throw Exceptions.notFound('User');
+    }
+
+    const newRating = ratingRepo.create({ rate, comment, product , user});
+
+    await ratingRepo.save(newRating);
+
+    res.status(200).send('Review added');
+  }
+    
 }
 
 export default UserController;

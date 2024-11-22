@@ -5,16 +5,15 @@ import { comparePassword } from '../utils/crypto';
 import { LoginDto } from '../dtos/user';
 import Exceptions from '../common/exceptions';
 import { jwtSecret } from '../common/config/constants';
-import { ValidateDto } from '../middlewares/validationHandler';
 import User from '../entities/user';
+import { validateDto } from '../utils/valitator';
 
 const userRepo = MainDataSource.getRepository(User);
 
 class AuthController {
 
-  @ValidateDto(LoginDto)
   static async login(req: Request, res: Response) {
-    const { email, password } = req.body;
+    const { email, password }  = await validateDto(LoginDto, req.body);
 
     const user = await userRepo.findOne({ where: { email } });
 

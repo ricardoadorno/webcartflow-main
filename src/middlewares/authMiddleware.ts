@@ -7,7 +7,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization;
 
   if (!token) {
-    throw Exceptions.unauthorized();
+    throw Exceptions.tokenNotFound();
   }
 
   try {
@@ -17,7 +17,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
     next();
   } catch (error) {
-    throw Exceptions.unauthorized();
+    throw Exceptions.invalidToken();
   }
 };
 

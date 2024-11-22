@@ -1,4 +1,4 @@
-import { IsString, Length, IsNotEmpty } from 'class-validator';
+import { IsString, Length, IsNotEmpty, IsInt, Min, Max } from 'class-validator';
 
 export class CreateUserDTO {
   @IsString()
@@ -37,4 +37,21 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+}
+
+
+export class CreateRatingDto {
+
+  @IsNotEmpty()
+  @Min(1)
+  @Max(5)
+  @IsInt()
+  rate: number
+
+  @IsNotEmpty()
+  product_id: number
+
+  @IsString()
+  comment: string;
+
 }
